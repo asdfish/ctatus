@@ -2,7 +2,7 @@
 slstatus alternative
 
 ## Building
-~~~bash
+~~~sh
 git clone https://github.com/asdfish/ctatus
 cd ctatus
 sudo make install
@@ -23,4 +23,9 @@ Usage depends on the window manager/bar that you're using, and may require some 
         "exec": "ctatus"
     }
 }
+~~~
+
+### Dwm
+~~~sh
+patch -i patches/dwm.patch
 ~~~
