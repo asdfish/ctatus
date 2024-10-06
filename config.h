@@ -2,6 +2,9 @@
 #include "src/definitions.h"
 #include "src/modules.h"
 
+// if you get an error saying "stack smashing detected", increase this number
+#define BUFFER_SIZE 256
+
 // some bars/wm require newlines in order to be reach, such as waybar or lemonbar
 #define OUTPUT_FORMAT "%s\n"
 
