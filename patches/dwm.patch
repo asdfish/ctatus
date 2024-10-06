@@ -19,12 +19,12 @@ index 456676d..3085037 100644
  ifeq (, $(wildcard ctatus))
  	make
 diff --git a/config.h b/config.h
-index c00e5d6..582e5e9 100644
+index e18429a..61995a5 100644
 --- a/config.h
 +++ b/config.h
-@@ -2,9 +2,6 @@
- #include "src/definitions.h"
- #include "src/modules.h"
+@@ -5,9 +5,6 @@
+ // if you get an error saying "stack smashing detected", increase this number
+ #define BUFFER_SIZE 256
  
 -// some bars/wm require newlines in order to be reach, such as waybar or lemonbar
 -#define OUTPUT_FORMAT "%s\n"
@@ -33,7 +33,7 @@ index c00e5d6..582e5e9 100644
  static Module modules[] = {
    {
 diff --git a/src/main.c b/src/main.c
-index fc0f1df..7adf1ca 100644
+index 2e1bf28..a72d746 100644
 --- a/src/main.c
 +++ b/src/main.c
 @@ -7,7 +7,16 @@
@@ -53,7 +53,7 @@ index fc0f1df..7adf1ca 100644
    const unsigned int modules_length = sizeof(modules) / sizeof(modules[0]);
    char** module_contents = (char**) malloc(modules_length * sizeof(char*));
    if(module_contents == NULL) {
-@@ -68,14 +77,21 @@ int main(void) {
+@@ -68,14 +77,23 @@ int main(void) {
        while((buffer = strsep(&contents_pointer, "\n")) != NULL)
          strcat(output, buffer);
  
@@ -78,10 +78,12 @@ index fc0f1df..7adf1ca 100644
 +
 +        goto free_module_contents;
 +      }
++
++    XFlush(display);
  
      free(contents);
  
-@@ -85,6 +101,7 @@ wait:
+@@ -85,6 +103,7 @@ wait:
    }
  
  free_module_contents:
