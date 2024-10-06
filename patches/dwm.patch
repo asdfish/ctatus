@@ -45,7 +45,7 @@ index fc0f1df..7adf1ca 100644
  int main(void) {
 +  Display* display = XOpenDisplay(NULL);
 +  if(display == NULL) {
-+    fprintf(stderr, "Filed to open X display\n");
++    fprintf(stderr, "Failed to open X display\n");
 +    fflush(stderr);
 +    return -1;
 +  }
