@@ -58,3 +58,15 @@ endif
 ifneq (, $(wildcard deps))
 	rm -rf deps
 endif
+ifneq (, $(wildcard *.orig))
+	rm *.orig
+endif
+ifneq (, $(wildcard *.rej))
+	rm *.rej
+endif
+ifneq (, $(wildcard src/*.orig))
+	rm src/*.orig
+endif
+ifneq (, $(wildcard src/*.rej))
+	rm src/*.rej
+endif
