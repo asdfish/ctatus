@@ -44,7 +44,7 @@ int main(void) {
     if(!require_update)
       goto wait;
 
-    char* contents = (char*) malloc(contents_length * sizeof(char));
+    char* contents = (char*) malloc((contents_length + 1) * sizeof(char));
     if(contents == NULL) {
       fprintf(stderr, "malloc failed\n");
       fflush(stderr);
