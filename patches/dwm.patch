@@ -1,0 +1,91 @@
+diff --git a/Makefile b/Makefile
+index 456676d..3085037 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,5 +1,5 @@
+ STANDARD := -std=gnu11
+-LINK_FLAGS := 
++LINK_FLAGS := -lX11
+ INCLUDE_FLAGS := 
+ SOURCE_FILES := src/main.c src/modules.c
+ HEADER_FILES := src/definitions.h src/modules.h
+@@ -35,8 +35,6 @@ ifeq (, $(wildcard deps))
+ 	mkdir deps
+ endif
+ 
+-
+-
+ install: ${INSTALL_DIRECTORY}
+ ifeq (, $(wildcard ctatus))
+ 	make
+diff --git a/config.h b/config.h
+index c00e5d6..582e5e9 100644
+--- a/config.h
++++ b/config.h
+@@ -2,9 +2,6 @@
+ #include "src/definitions.h"
+ #include "src/modules.h"
+ 
+-// some bars/wm require newlines in order to be reach, such as waybar or lemonbar
+-#define OUTPUT_FORMAT "%s\n"
+-
+ #ifdef MODULES
+ static Module modules[] = {
+   {
+diff --git a/src/main.c b/src/main.c
+index fc0f1df..7adf1ca 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -7,7 +7,16 @@
+ #include <string.h>
+ #include <unistd.h>
+ 
++#include <X11/Xlib.h>
++
+ int main(void) {
++  Display* display = XOpenDisplay(NULL);
++  if(display == NULL) {
++    fprintf(stderr, "Filed to open X display\n");
++    fflush(stderr);
++    return -1;
++  }
++
+   const unsigned int modules_length = sizeof(modules) / sizeof(modules[0]);
+   char** module_contents = (char**) malloc(modules_length * sizeof(char*));
+   if(module_contents == NULL) {
+@@ -68,14 +77,21 @@ int main(void) {
+       while((buffer = strsep(&contents_pointer, "\n")) != NULL)
+         strcat(output, buffer);
+ 
+-      fprintf(stdout, OUTPUT_FORMAT, output);
+-      fflush(stdout);
++      if(XStoreName(display, DefaultRootWindow(display), output) < 0) {
++        fprintf(stderr, "Failed to set x root window name\n");
++        fflush(stderr);
++
++        goto free_module_contents;
++      }
+ 
+       free(output);
+-    } else {
+-      fprintf(stdout, OUTPUT_FORMAT, contents);
+-      fflush(stdout);
+-    }
++    } else
++      if(XStoreName(display, DefaultRootWindow(display), contents) < 0) {
++        fprintf(stderr, "Failed to set x root window name\n");
++        fflush(stderr);
++
++        goto free_module_contents;
++      }
+ 
+     free(contents);
+ 
+@@ -85,6 +101,7 @@ wait:
+   }
+ 
+ free_module_contents:
++  XCloseDisplay(display);
+   for(unsigned int i = 0; module_contents[i] != NULL && i < modules_length; i ++)
+     free(module_contents[i]);
+   free(module_contents);
