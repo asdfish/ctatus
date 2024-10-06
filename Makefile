@@ -4,7 +4,7 @@ INCLUDE_FLAGS :=
 SOURCE_FILES := src/main.c src/modules.c
 HEADER_FILES := src/definitions.h src/modules.h
 DEBUG_FLAGS := -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter
-OPTIMIZATION_FLAGS := -Og
+OPTIMIZATION_FLAGS := -O2 -march=native
 CC ?= gcc
 INSTALL_DIRECTORY := /usr/local/bin
 
