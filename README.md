@@ -11,7 +11,9 @@ sudo make install
 ## Usage
 Usage depends on the window manager/bar that you're using, and may require some hacking
 
-### Waybar
+### Examples:
+
+#### Waybar
 ~~~json
 {
     "modules-right": [
