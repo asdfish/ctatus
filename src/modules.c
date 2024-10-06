@@ -66,7 +66,8 @@ char* date_time(const char* format) {
   time_t raw_time = time(NULL);
   struct tm* local_time = localtime(&raw_time);
 
-  unsigned int length = strftime(NULL, UINT_MAX, format, local_time);
+  char buffer[BUFFER_SIZE];
+  unsigned int length = strftime(buffer, BUFFER_SIZE, format, local_time);
   char* output = (char*) malloc((length + 1) * sizeof(char));
   if(output == NULL)
     return NULL;
