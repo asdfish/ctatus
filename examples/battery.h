@@ -1,6 +1,6 @@
 #pragma once
-#include "src/definitions.h"
-#include "src/modules.h"
+#include <definitions.h>
+#include <modules.h>
 
 // if you get an error saying "stack smashing detected", increase this number
 #define BUFFER_SIZE 256
