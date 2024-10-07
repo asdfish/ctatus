@@ -1,25 +1,24 @@
 diff --git a/Makefile b/Makefile
-index 456676d..3085037 100644
+index 984df0c..430c2eb 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -1,5 +1,5 @@
+@@ -1,4 +1,5 @@
  STANDARD := -std=gnu11
--LINK_FLAGS := 
 +LINK_FLAGS := -lX11
- INCLUDE_FLAGS := 
- SOURCE_FILES := src/main.c src/modules.c
- HEADER_FILES := src/definitions.h src/modules.h
-@@ -35,8 +35,6 @@ ifeq (, $(wildcard deps))
- 	mkdir deps
- endif
+ INCLUDE_FLAGS := -Iinclude
+ DEBUG_FLAGS := -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter
+ OPTIMIZATION_FLAGS := -O2 -march=native
+@@ -24,7 +25,7 @@ build/modules.c.o: config.h include/modules.h src/modules.c
+ 	$(call COMPILE_FILE,src/modules.c)
  
--
--
- install: ${INSTALL_DIRECTORY}
- ifeq (, $(wildcard ctatus))
- 	make
+ ctatus: build ${OBJECT_FILES}
+-	${CC} ${OBJECT_FILES} -o ctatus
++	${CC} ${OBJECT_FILES} ${LINK_FLAGS} -o ctatus
+ 
+ install: ctatus ${INSTALL_DIRECTORY}
+ 	cp -f ctatus ${INSTALL_DIRECTORY}
 diff --git a/config.h b/config.h
-index e18429a..61995a5 100644
+index 6c03193..7df67d6 100644
 --- a/config.h
 +++ b/config.h
 @@ -5,9 +5,6 @@
