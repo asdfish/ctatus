@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CONFIG_H
+#define CONFIG_H
+
 #include <definitions.h>
 #include <modules.h>
 
@@ -86,4 +88,6 @@ static const char* hour_symbols[] = {
   "󱑔",
   "󱑕",
 };
+#endif
+
 #endif
