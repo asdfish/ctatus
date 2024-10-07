@@ -1,46 +1,32 @@
 STANDARD := -std=gnu11
 LINK_FLAGS := 
-INCLUDE_FLAGS := 
-SOURCE_FILES := src/main.c src/modules.c
-HEADER_FILES := src/definitions.h src/modules.h
 DEBUG_FLAGS := -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter
 OPTIMIZATION_FLAGS := -O2 -march=native
 CC ?= gcc
 INSTALL_DIRECTORY := /usr/local/bin
 
-OBJECT_FILES := 
+OBJECT_FILES := build/main.c.o build/modules.c.o
 
 define COMPILE_FILE
 	${CC} -c ${STANDARD} $(1) ${INCLUDE_FLAGS} ${DEBUG_FLAGS} ${OPTIMIZATION_FLAGS} -o build/$(notdir $(1)).o 
-	$(eval OBJECT_FILES+=build/$(notdir $(1)).o)
 
 endef
 
-all:  compile
+all: ctatus
 
-compile: build_prep ${SOURCE_FILES} ${HEADER_FILES}
-	$(foreach SOURCE_FILE,$\
-	  ${SOURCE_FILES},$\
-	  $(call COMPILE_FILE,${SOURCE_FILE})$\
-	)
+build:
+	mkdir build
+
+build/main.c.o: config.h src/definitions.h src/modules.h src/main.c
+	$(call COMPILE_FILE,src/main.c)
+
+build/modules.c.o: config.h src/modules.h src/modules.c
+	$(call COMPILE_FILE,src/modules.c)
+
+ctatus: build ${OBJECT_FILES}
 	${CC} ${OBJECT_FILES} ${LINK_FLAGS} -o ctatus
 
-build_prep:
-ifeq (, $(wildcard build))
-	mkdir build
-endif
-
-dependencies_prep:
-ifeq (, $(wildcard deps))
-	mkdir deps
-endif
-
-
-
-install: ${INSTALL_DIRECTORY}
-ifeq (, $(wildcard ctatus))
-	make
-endif
+install: ctatus ${INSTALL_DIRECTORY}
 	cp -f ctatus ${INSTALL_DIRECTORY}
 
 uninstall:
