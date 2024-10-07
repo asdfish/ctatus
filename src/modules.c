@@ -1,6 +1,6 @@
 #define MODULE_CONFIGS
 #include "../config.h"
-#include "modules.h"
+#include <modules.h>
 
 #include <limits.h>
 #include <stdio.h>

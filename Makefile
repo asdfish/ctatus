@@ -1,5 +1,5 @@
 STANDARD := -std=gnu11
-LINK_FLAGS := 
+INCLUDE_FLAGS := -Iinclude
 DEBUG_FLAGS := -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter
 OPTIMIZATION_FLAGS := -O2 -march=native
 CC ?= gcc
@@ -17,14 +17,14 @@ all: ctatus
 build:
 	mkdir build
 
-build/main.c.o: config.h src/definitions.h src/modules.h src/main.c
+build/main.c.o: config.h include/definitions.h include/modules.h src/main.c
 	$(call COMPILE_FILE,src/main.c)
 
-build/modules.c.o: config.h src/modules.h src/modules.c
+build/modules.c.o: config.h include/modules.h src/modules.c
 	$(call COMPILE_FILE,src/modules.c)
 
 ctatus: build ${OBJECT_FILES}
-	${CC} ${OBJECT_FILES} ${LINK_FLAGS} -o ctatus
+	${CC} ${OBJECT_FILES} -o ctatus
 
 install: ctatus ${INSTALL_DIRECTORY}
 	cp -f ctatus ${INSTALL_DIRECTORY}
