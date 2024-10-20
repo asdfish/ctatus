@@ -1,30 +1,31 @@
-STANDARD := -std=gnu11
-INCLUDE_FLAGS := -Iinclude
-DEBUG_FLAGS := -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter
-OPTIMIZATION_FLAGS := -O2 -march=native
 CC ?= gcc
+C_FLAGS := -std=gnu11 $\
+					 -O2 -march=native -pipe $\
+					 -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter $\
+					 -Iinclude
+LD_FLAGS :=
+
+DIRECTORIES := build
+
 INSTALL_DIRECTORY := /usr/local/bin
 
-OBJECT_FILES := build/main.c.o build/modules.c.o
-
-define COMPILE_FILE
-	${CC} -c ${STANDARD} $(1) ${INCLUDE_FLAGS} ${DEBUG_FLAGS} ${OPTIMIZATION_FLAGS} -o build/$(notdir $(1)).o 
-
-endef
+OBJECT_FILES := build/main.o build/modules.o
 
 all: ctatus
 
-build:
-	mkdir build
+${DIRECTORIES}:
+	$(foreach DIRECTORY,$\
+		${DIRECTORIES},$\
+		$(if $(wildcard ${DIRECTORY}),,$\
+			$(shell mkdir ${DIRECTORY})$\
+		)$\
+	)
 
-build/main.c.o: config.h include/definitions.h include/modules.h src/main.c
-	$(call COMPILE_FILE,src/main.c)
-
-build/modules.c.o: config.h include/modules.h src/modules.c
-	$(call COMPILE_FILE,src/modules.c)
+${OBJECT_FILES}: build/%.o :src/%.c
+	${CC} -c $< ${C_FLAGS} -o $@
 
 ctatus: build ${OBJECT_FILES}
-	${CC} ${OBJECT_FILES} -o ctatus
+	${CC} ${OBJECT_FILES} ${LD_FLAGS} -o ctatus
 
 install: ctatus ${INSTALL_DIRECTORY}
 	cp -f ctatus ${INSTALL_DIRECTORY}
@@ -35,24 +36,11 @@ ifneq (, $(wildcard ${INSTALL_DIRECTORY}/ctatus))
 endif
 
 clean:
-ifneq (, $(wildcard ctatus))
-	rm -f ctatus
-endif
-ifneq (, $(wildcard build))
-	rm -rf build
-endif
-ifneq (, $(wildcard deps))
-	rm -rf deps
-endif
-ifneq (, $(wildcard *.orig))
-	rm *.orig
-endif
-ifneq (, $(wildcard *.rej))
-	rm *.rej
-endif
-ifneq (, $(wildcard src/*.orig))
-	rm src/*.orig
-endif
-ifneq (, $(wildcard src/*.rej))
-	rm src/*.rej
-endif
+	-rm -f ctatus
+	-rm -rf build
+	-rm *.orig
+	-rm *.rej
+	-rm src/*.orig
+	-rm src/*.rej
+
+.PHONY: clean
