@@ -14,12 +14,7 @@ OBJECT_FILES := build/main.o build/modules.o
 all: ctatus
 
 ${DIRECTORIES}:
-	$(foreach DIRECTORY,$\
-		${DIRECTORIES},$\
-		$(if $(wildcard ${DIRECTORY}),,$\
-			$(shell mkdir ${DIRECTORY})$\
-		)$\
-	)
+	-mkdir ${DIRECTORIES}
 
 ${OBJECT_FILES}: build/%.o :src/%.c
 	${CC} -c $< ${C_FLAGS} -o $@
@@ -28,12 +23,10 @@ ctatus: build ${OBJECT_FILES}
 	${CC} ${OBJECT_FILES} ${LD_FLAGS} -o ctatus
 
 install: ctatus ${INSTALL_DIRECTORY}
-	cp -f ctatus ${INSTALL_DIRECTORY}
+	-cp -f ctatus ${INSTALL_DIRECTORY}
 
 uninstall:
-ifneq (, $(wildcard ${INSTALL_DIRECTORY}/ctatus))
-	rm -f ${INSTALL_DIRECTORY}/ctatus
-endif
+	-rm -f ${INSTALL_DIRECTORY}/ctatus
 
 clean:
 	-rm -f ctatus
@@ -43,4 +36,4 @@ clean:
 	-rm src/*.orig
 	-rm src/*.rej
 
-.PHONY: clean
+.PHONY: all clean install uninstall
