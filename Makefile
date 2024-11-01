@@ -3,24 +3,26 @@ C_FLAGS := -std=gnu11 $\
 					 -O2 -march=native -pipe $\
 					 -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter $\
 					 -Iinclude
-LD_FLAGS :=
-
-DIRECTORIES := build
 
 INSTALL_DIRECTORY := /usr/local/bin
 
 OBJECT_FILES := build/main.o build/modules.o
 
+define REMOVE_LIST
+	$(foreach ITEM,$\
+		$(1),$\
+		$(if $(wildcard ${ITEM}),$\
+			rm ${ITEM}))
+
+endef
+
 all: ctatus
 
-${DIRECTORIES}:
-	-mkdir ${DIRECTORIES}
-
-${OBJECT_FILES}: build/%.o :src/%.c
+build/%.o :src/%.c
 	${CC} -c $< ${C_FLAGS} -o $@
 
-ctatus: build ${OBJECT_FILES}
-	${CC} ${OBJECT_FILES} ${LD_FLAGS} -o ctatus
+ctatus: ${OBJECT_FILES}
+	${CC} ${OBJECT_FILES} -o ctatus
 
 install: ctatus ${INSTALL_DIRECTORY}
 	-cp -f ctatus ${INSTALL_DIRECTORY}
@@ -29,11 +31,10 @@ uninstall:
 	-rm -f ${INSTALL_DIRECTORY}/ctatus
 
 clean:
-	-rm -f ctatus
-	-rm -rf build
-	-rm *.orig
-	-rm *.rej
-	-rm src/*.orig
-	-rm src/*.rej
+	$(call REMOVE_LIST,$\
+		${OBJECT_FILES})
+ifneq (,$(wildcard ctatus))
+	rm ctatus
+endif
 
 .PHONY: all clean install uninstall
