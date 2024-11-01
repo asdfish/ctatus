@@ -6,22 +6,35 @@ C_FLAGS := -std=gnu11 $\
 
 INSTALL_DIRECTORY := /usr/local/bin
 
-OBJECT_FILES := build/main.o build/modules.o
+PROCESSED_HEADER_FILES := $(subst .h,$\
+														$(if $(findstring clang,${CC}),$\
+															.h.pch,$\
+															.h.gch),$\
+														$(shell find include -name '*.h'))
+OBJECT_FILES := $(patsubst src/%.c,$\
+									build/%.o,$\
+									$(shell find src -name '*.c'))
 
 define REMOVE_LIST
 	$(foreach ITEM,$\
 		$(1),$\
 		$(if $(wildcard ${ITEM}),$\
-			rm ${ITEM}))
+			$(shell rm ${ITEM})))
 
 endef
 
 all: ctatus
 
-build/%.o :src/%.c
+build/%.o: src/%.c
 	${CC} -c $< ${C_FLAGS} -o $@
 
-ctatus: ${OBJECT_FILES}
+%.gch: %
+	${CC} -c $< ${C_FLAGS}
+
+%.pch: %
+	${CC} -c $< ${C_FLAGS}
+
+ctatus: ${PROCESSED_HEADER_FILES} ${OBJECT_FILES}
 	${CC} ${OBJECT_FILES} -o ctatus
 
 install: ctatus ${INSTALL_DIRECTORY}
@@ -33,6 +46,8 @@ uninstall:
 clean:
 	$(call REMOVE_LIST,$\
 		${OBJECT_FILES})
+	$(call REMOVE_LIST,$\
+		${PROCESSED_HEADER_FILES})
 ifneq (,$(wildcard ctatus))
 	rm ctatus
 endif
