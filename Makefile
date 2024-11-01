@@ -37,11 +37,13 @@ build/%.o: src/%.c
 ctatus: ${PROCESSED_HEADER_FILES} ${OBJECT_FILES}
 	${CC} ${OBJECT_FILES} -o ctatus
 
-install: ctatus ${INSTALL_DIRECTORY}
-	-cp -f ctatus ${INSTALL_DIRECTORY}
+install: ctatus ${INSTALL_DIRECTORY} uninstall
+	cp ctatus ${INSTALL_DIRECTORY}
 
 uninstall:
-	-rm -f ${INSTALL_DIRECTORY}/ctatus
+ifneq (,$(wildcard ${INSTALL_DIRECTORY}/ctatus))
+	rm ${INSTALL_DIRECTORY}/ctatus
+endif
 
 clean:
 	$(call REMOVE_LIST,$\
