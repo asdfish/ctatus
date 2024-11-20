@@ -1,15 +1,24 @@
 diff --git a/Makefile b/Makefile
-index 595a390..1e2ca92 100644
+index 99de733..7fe8625 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -3,6 +3,7 @@ C_FLAGS := -std=gnu11 $\
- 					 -O2 -march=native -pipe $\
- 					 -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter $\
- 					 -Iinclude
-+LD_FLAGS := -lX11
+@@ -3,6 +3,7 @@ CFLAGS ?= -O2 -march=native -pipe
+ COMMONFLAGS := -std=gnu11 $\
+ 							 -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter $\
+ 							 -Iinclude
++LDFLAGS := ${CFLAGS} ${COMMONFLAGS} -lX11
  
  INSTALL_DIRECTORY := /usr/local/bin
  
+@@ -48,7 +49,7 @@ build/%.o: src/%.c
+ 	$(call COMPILE,$<,$@)
+ 
+ ctatus: ${CTATUS_REQUIREMENTS}
+-	${CC} ${OBJECT_FILES} ${CFLAGS} ${COMMONFLAGS} -o ctatus
++	${CC} ${OBJECT_FILES} ${LDFLAGS} -o ctatus
+ 
+ install: ctatus ${INSTALL_DIRECTORY} uninstall
+ 	cp ctatus ${INSTALL_DIRECTORY}
 diff --git a/config.h b/config.h
 index 69242ee..2f916ae 100644
 --- a/config.h
@@ -24,6 +33,96 @@ index 69242ee..2f916ae 100644
  #ifdef MODULES
  static Module modules[] = {
    {
+diff --git a/patches/dwm.patch b/patches/dwm.patch
+index 4d2bc6e..e69de29 100644
+--- a/patches/dwm.patch
++++ b/patches/dwm.patch
+@@ -1,85 +0,0 @@
+-diff --git a/Makefile b/Makefile
+-index 595a390..1e2ca92 100644
+---- a/Makefile
+-+++ b/Makefile
+-@@ -3,6 +3,7 @@ C_FLAGS := -std=gnu11 $\
+- 					 -O2 -march=native -pipe $\
+- 					 -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter $\
+- 					 -Iinclude
+-+LD_FLAGS := -lX11
+- 
+- INSTALL_DIRECTORY := /usr/local/bin
+- 
+-diff --git a/config.h b/config.h
+-index 69242ee..2f916ae 100644
+---- a/config.h
+-+++ b/config.h
+-@@ -7,9 +7,6 @@
+- // if you get an error saying "stack smashing detected", increase this number
+- #define BUFFER_SIZE 256
+- 
+--// some bars/wm require newlines in order to be reach, such as waybar or lemonbar
+--#define OUTPUT_FORMAT "%s\n"
+--
+- #ifdef MODULES
+- static Module modules[] = {
+-   {
+-diff --git a/src/main.c b/src/main.c
+-index 2e1bf28..a72d746 100644
+---- a/src/main.c
+-+++ b/src/main.c
+-@@ -7,7 +7,16 @@
+- #include <string.h>
+- #include <unistd.h>
+- 
+-+#include <X11/Xlib.h>
+-+
+- int main(void) {
+-+  Display* display = XOpenDisplay(NULL);
+-+  if(display == NULL) {
+-+    fprintf(stderr, "Failed to open X display\n");
+-+    fflush(stderr);
+-+    return -1;
+-+  }
+-+
+-   const unsigned int modules_length = sizeof(modules) / sizeof(modules[0]);
+-   char** module_contents = (char**) malloc(modules_length * sizeof(char*));
+-   if(module_contents == NULL) {
+-@@ -68,14 +77,23 @@ int main(void) {
+-       while((buffer = strsep(&contents_pointer, "\n")) != NULL)
+-         strcat(output, buffer);
+- 
+--      fprintf(stdout, OUTPUT_FORMAT, output);
+--      fflush(stdout);
+-+      if(XStoreName(display, DefaultRootWindow(display), output) < 0) {
+-+        fprintf(stderr, "Failed to set x root window name\n");
+-+        fflush(stderr);
+-+
+-+        goto free_module_contents;
+-+      }
+- 
+-       free(output);
+--    } else {
+--      fprintf(stdout, OUTPUT_FORMAT, contents);
+--      fflush(stdout);
+--    }
+-+    } else
+-+      if(XStoreName(display, DefaultRootWindow(display), contents) < 0) {
+-+        fprintf(stderr, "Failed to set x root window name\n");
+-+        fflush(stderr);
+-+
+-+        goto free_module_contents;
+-+      }
+-+
+-+    XFlush(display);
+- 
+-     free(contents);
+- 
+-@@ -85,6 +103,7 @@ wait:
+-   }
+- 
+- free_module_contents:
+-+  XCloseDisplay(display);
+-   for(unsigned int i = 0; module_contents[i] != NULL && i < modules_length; i ++)
+-     free(module_contents[i]);
+-   free(module_contents);
 diff --git a/src/main.c b/src/main.c
 index 2e1bf28..a72d746 100644
 --- a/src/main.c
