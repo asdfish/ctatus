@@ -1,8 +1,8 @@
 CC ?= gcc
-C_FLAGS := -std=gnu11 $\
-					 -O2 -march=native -pipe $\
-					 -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter $\
-					 -Iinclude
+CFLAGS ?= -O2 -march=native -pipe
+COMMONFLAGS := -std=gnu11 $\
+							 -Wall -Wextra -Wpedantic -Wno-nonnull -Wno-unused-parameter $\
+							 -Iinclude
 
 INSTALL_DIRECTORY := /usr/local/bin
 
@@ -21,7 +21,7 @@ OBJECT_FILES := $(patsubst src/%.c,$\
 CTATUS_REQUIREMENTS := ${PROCESSED_HEADER_FILES} ${OBJECT_FILES}
 
 define COMPILE
-${CC} -c $(1) ${C_FLAGS} -o $(2)
+${CC} -c $(1) ${CFLAGS} ${COMMONFLAGS} -o $(2)
 
 endef
 define REMOVE
@@ -48,7 +48,7 @@ build/%.o: src/%.c
 	$(call COMPILE,$<,$@)
 
 ctatus: ${CTATUS_REQUIREMENTS}
-	${CC} ${OBJECT_FILES} ${C_FLAGS} -o ctatus
+	${CC} ${OBJECT_FILES} ${CFLAGS} ${COMMONFLAGS} -o ctatus
 
 install: ctatus ${INSTALL_DIRECTORY} uninstall
 	cp ctatus ${INSTALL_DIRECTORY}
